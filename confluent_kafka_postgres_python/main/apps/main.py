@@ -45,7 +45,7 @@ conf = {'bootstrap.servers': kafka_bootstrap_server,
         'enable.auto.commit': kafka_enable_auto_commit,
         'client.id': socket.gethostname()}
 consumer = Consumer(conf)
-consumer.subscribe(kafka_topic_name)
+consumer.subscribe([kafka_topic_name])
 
 
 
