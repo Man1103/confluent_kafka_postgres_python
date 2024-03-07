@@ -1,0 +1,1 @@
+/usr/bin/kafka-topics --create --topic test-topic-1 --bootstrap-server localhost:9092
