@@ -6,8 +6,19 @@ import configparser
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-parser = configparser.ConfigParser()
-config = parser.read('./configs.ini')
+config = configparser.ConfigParser()
+config.read('./configs.ini')
+
+postgres_host=config.get('postgres','host').strip()
+postgres_port=config.getint('postgres','port')
+postgres_user=config.get('postgres','user').strip()
+postgres_password=config.get('postgres','password').strip()
+postgres_database=config.get('postgres','database').strip()
+
+kafka_bootstrap_server= config.get('kafka','bootstrap_servers').strip()
+kafka_group_id= config.get('kafka','group_id').strip()
+kafka_auto_offset_commit= config.get('kafka','auto_offset_reset').strip()
+kafka_enable_auto_commit= config.getboolean('kafka','enable_auto_commit')
 
 app = FastAPI()
 app.add_middleware(
@@ -18,17 +29,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-conn = psycopg2.connect(host=config['postgres']['host'],
-                        port=config['postgres']['port'],
-                        user=config['postgres']['user'],
-                        password=config['postgres']['password'],
-                        database=config['postgres']['database'])
+conn = psycopg2.connect(host=postgres_host,
+                        port=postgres_port,
+                        user=postgres_user,
+                        password=postgres_password,
+                        database=postgres_database)
 cur = conn.cursor()
 
-conf = {'bootstrap.servers': config['kafka']['bootstrap_servers'],
-        'group.id': config['kafka']['group_id'],
-        'auto.offset.reset': config['kafka']['earliest'],
-        'enable.auto.commit': config['kafka']['enable_auto_commit'],
+conf = {'bootstrap.servers': kafka_bootstrap_server,
+        'group.id': kafka_group_id,
+        'auto.offset.reset': kafka_auto_offset_commit,
+        'enable.auto.commit': kafka_enable_auto_commit,
         'client.id': socket.gethostname()}
 consumer = Consumer(conf)
 consumer.subscribe(config['kafka']['topic_name'])
